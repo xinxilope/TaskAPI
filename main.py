@@ -26,6 +26,6 @@ def get_posts():
     return {"data": "this is all your posts"}
 
 @app.post("/createposts")
-def create_posts(new_post: Post):
-    print(new_post)
-    return {"msg": "new_post"}
+def create_posts(post: Post):
+    print(post.dict())
+    return {"data": post}
