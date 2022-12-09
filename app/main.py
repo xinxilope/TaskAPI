@@ -2,11 +2,16 @@ from typing import Optional
 from fastapi import FastAPI, status, HTTPException
 from pydantic import BaseModel
 from random import randrange
+import pyodbc
+import os
 
 
 app = FastAPI()
 
-
+server = os.environ['taskAPIdbHOST'] 
+database = os.environ['taskAPIdbDATABASE']
+cnxn = pyodbc.connect('DRIVER={SQL Server Native Client 11.0};SERVER='+server+';DATABASE='+database+';Trusted_Connection=yes')
+cursor = cnxn.cursor()
 
 
 class Post(BaseModel):
