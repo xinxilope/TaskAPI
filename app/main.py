@@ -4,22 +4,29 @@ from pydantic import BaseModel
 from random import randrange
 import pyodbc
 import os
+import time
 
 
 app = FastAPI()
-
-server = os.environ['taskAPIdbHOST'] 
-database = os.environ['taskAPIdbDATABASE']
-cnxn = pyodbc.connect('DRIVER={SQL Server Native Client 11.0};SERVER='+server+';DATABASE='+database+';Trusted_Connection=yes')
-cursor = cnxn.cursor()
 
 
 class Post(BaseModel):
     tittle: str
     content: str
     published: bool = True
-    rating: Optional[int] = None
 
+
+while True:
+    try:
+        server = os.environ['taskAPIdbHOST'] 
+        database = os.environ['taskAPIdbDATABASE']
+        cnxn = pyodbc.connect('DRIVER={SQL Server Native Client 11.0};SERVER='+server+';DATABASE='+database+';Trusted_Connection=yes')
+        cursor = cnxn.cursor()
+        print("Database Connected!")
+        break
+    except Exception as error:
+        print("Connecting to database failed\nError: ", error)
+        time.sleep(5)
 
 
 
@@ -51,7 +58,14 @@ def root():
 
 @app.get("/posts")
 def get_posts():
-    return {"data": my_posts}
+    cursor.execute("""SELECT * FROM Post""")
+    columns = [column[0] for column in cursor.description]
+    print(columns)
+    result=[]
+    for row in cursor.fetchall():
+        result.append(dict(zip(columns, row)))
+    print(result)
+    return {"data": result}
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
 def create_posts(post: Post):
