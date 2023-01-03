@@ -58,21 +58,30 @@ def root():
 
 @app.get("/posts")
 def get_posts():
-    cursor.execute("""SELECT * FROM Post""")
+    cursor.execute("""SELECT * FROM Posts""")
     columns = [column[0] for column in cursor.description]
-    print(columns)
     result=[]
     for row in cursor.fetchall():
         result.append(dict(zip(columns, row)))
-    print(result)
     return {"data": result}
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
 def create_posts(post: Post):
-    post_dict = post.dict()
-    post_dict['id'] = randrange(0,100000)
-    my_posts.append(post_dict)
-    return {"data": post_dict}
+    if post.published == True:
+        post.published = 1
+    else:
+        post.published = 0
+
+    cursor.execute(f"""INSERT INTO Posts (tittle, description, published) VALUES ('{post.tittle}', '{post.content}', {post.published})""")
+    cnxn.commit()
+
+    cursor.execute(f"""SELECT * FROM Posts WHERE id = SCOPE_IDENTITY()""")
+    columns = [column[0] for column in cursor.description]
+    result=[]
+    for row in cursor.fetchall():
+        result.append(dict(zip(columns, row)))
+
+    return {"data": result}
 
 @app.get("/posts/{id}")
 def get_post(id: int):
