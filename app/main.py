@@ -59,8 +59,8 @@ def root():
 
 @app.get("/posts")
 def get_posts():
-    cursor.execute("""SELECT * FROM Posts""")
     result=[]
+    cursor.execute("""SELECT * FROM Posts""")
     columns = [column[0] for column in cursor.description]
     for row in cursor.fetchall():
         result.append(dict(zip(columns,row)))
@@ -68,27 +68,26 @@ def get_posts():
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
 def create_posts(post: Post):
+    result=[]
+
     if post.published == True:
         post.published = 1
     else:
         post.published = 0
 
-    cursor.execute(f"""INSERT INTO Posts (tittle, description, published) VALUES ('{post.tittle}', '{post.content}', {post.published})""")
-    cnxn.commit()
-
-    cursor.execute(f"""SELECT * FROM Posts WHERE id = SCOPE_IDENTITY()""")
+    cursor.execute("""INSERT INTO Posts (tittle, description, published) OUTPUT Inserted.* VALUES (?, ?, ?)""",post.tittle,post.content,post.published)
     columns = [column[0] for column in cursor.description]
-    result=[]
     row = cursor.fetchone()
     result=dict(zip(columns, row))
+    cnxn.commit()
 
     return {"data": result}
 
 @app.get("/posts/{id}")
 def get_post(id: int):
-    cursor.execute(f"""SELECT * FROM Posts WHERE id = {id}""")
-    columns = [column[0] for column in cursor.description]
     result=[]
+    cursor.execute("""SELECT * FROM Posts WHERE id = ?""", id)
+    columns = [column[0] for column in cursor.description]
     row = cursor.fetchone()
     if not row:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")
