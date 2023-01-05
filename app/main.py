@@ -60,10 +60,12 @@ def root():
 @app.get("/posts")
 def get_posts():
     result=[]
+
     cursor.execute("""SELECT * FROM Posts""")
     columns = [column[0] for column in cursor.description]
     for row in cursor.fetchall():
         result.append(dict(zip(columns,row)))
+
     return {"data": result}
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
@@ -86,12 +88,14 @@ def create_posts(post: Post):
 @app.get("/posts/{id}")
 def get_post(id: int):
     result=[]
+
     cursor.execute("""SELECT * FROM Posts WHERE id = ?""", id)
     columns = [column[0] for column in cursor.description]
     row = cursor.fetchone()
     if not row:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")
     result=dict(zip(columns, row))
+
     return{"data":result}
 
 @app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
