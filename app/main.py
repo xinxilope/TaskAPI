@@ -5,6 +5,7 @@ from random import randrange
 import pyodbc
 import os
 import time
+import json
 
 
 app = FastAPI()
@@ -59,10 +60,10 @@ def root():
 @app.get("/posts")
 def get_posts():
     cursor.execute("""SELECT * FROM Posts""")
-    columns = [column[0] for column in cursor.description]
     result=[]
+    columns = [column[0] for column in cursor.description]
     for row in cursor.fetchall():
-        result.append(dict(zip(columns, row)))
+        result.append(dict(zip(columns,row)))
     return {"data": result}
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
@@ -78,17 +79,21 @@ def create_posts(post: Post):
     cursor.execute(f"""SELECT * FROM Posts WHERE id = SCOPE_IDENTITY()""")
     columns = [column[0] for column in cursor.description]
     result=[]
-    for row in cursor.fetchall():
-        result.append(dict(zip(columns, row)))
+    row = cursor.fetchone()
+    result=dict(zip(columns, row))
 
     return {"data": result}
 
 @app.get("/posts/{id}")
 def get_post(id: int):
-    post = find_post(id)
-    if not post:
+    cursor.execute(f"""SELECT * FROM Posts WHERE id = {id}""")
+    columns = [column[0] for column in cursor.description]
+    result=[]
+    row = cursor.fetchone()
+    if not row:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")
-    return{"post":post}
+    result=dict(zip(columns, row))
+    return{"data":result}
 
 @app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(id: int):
