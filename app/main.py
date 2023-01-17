@@ -1,7 +1,11 @@
-from fastapi import FastAPI, Response, status, HTTPException
+from fastapi import FastAPI, Response, status, HTTPException, Depends
 from pydantic import BaseModel
 import pyodbc, os, time
+from . import models
+from .database import engine, get_db
+from sqlalchemy.orm import Session
 
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
@@ -30,11 +34,15 @@ while True:
 def root():
     return {"message": "Welcome to Home Page!"}
 
+@app.get("/sqlalchemy")
+def test_posts(db: Session = Depends(get_db)):
+    return {"message": "sucess"}
+
 @app.get("/posts")
 def get_posts():
     result=[]
 
-    cursor.execute("""SELECT * FROM POSTS""")
+    cursor.execute("""SELECT * FROM T_POSTS""")
     columns = [column[0] for column in cursor.description]
     for row in cursor.fetchall():
         result.append(dict(zip(columns,row)))
@@ -50,7 +58,7 @@ def create_posts(post: Post):
     else:
         post.published = 0
 
-    cursor.execute("""INSERT INTO POSTS (POS_TITLE, POS_DESCRIPTION, POS_PUBLISHED) OUTPUT Inserted.* VALUES (?, ?, ?)""",post.title,post.description,post.published)
+    cursor.execute("""INSERT INTO T_POSTS (POS_TITLE, POS_DESCRIPTION, POS_PUBLISHED) OUTPUT Inserted.* VALUES (?, ?, ?)""",post.title,post.description,post.published)
     columns = [column[0] for column in cursor.description]
     row = cursor.fetchone()
     result=dict(zip(columns, row))
@@ -62,7 +70,7 @@ def create_posts(post: Post):
 def get_post(id: int):
     result=[]
 
-    cursor.execute("""SELECT * FROM POSTS WHERE POS_ID = ?""", id)
+    cursor.execute("""SELECT * FROM T_POSTS WHERE POS_ID = ?""", id)
     columns = [column[0] for column in cursor.description]
     row = cursor.fetchone()
     if not row:
@@ -74,7 +82,7 @@ def get_post(id: int):
 @app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(id: int):
 
-    cursor.execute("""DELETE FROM POSTS OUTPUT Deleted.* WHERE POS_ID = ?""", id)
+    cursor.execute("""DELETE FROM T_POSTS OUTPUT Deleted.* WHERE POS_ID = ?""", id)
     row = cursor.fetchone()
     if not row:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")
@@ -91,7 +99,7 @@ def update_post(id: int, post: Post):
     else:
         post.published = 0
 
-    cursor.execute("""UPDATE POSTS SET POS_TITLE = ?,POS_DESCRIPTION = ?,POS_PUBLISHED = ? OUTPUT Inserted.* WHERE POS_ID = ?""", post.title,post.description,post.published,id)
+    cursor.execute("""UPDATE T_POSTS SET POS_TITLE = ?,POS_DESCRIPTION = ?,POS_PUBLISHED = ? OUTPUT Inserted.* WHERE POS_ID = ?""", post.title,post.description,post.published,id)
     columns = [column[0] for column in cursor.description]
     row = cursor.fetchone()
     if not row:
