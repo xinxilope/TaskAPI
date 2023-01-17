@@ -29,28 +29,6 @@ while True:
 
 
 
-
-my_posts = [{"titulo":"padrao","content":"padrao-conteudo","id":0}]
-
-
-
-
-
-def find_post(id):
-    for p in my_posts:
-        if p["id"] == id:
-            return p
-
-def find_index_post(id):
-    for i, p in enumerate(my_posts):
-        if p['id'] == id:
-            return i
-
-
-
-
-
-
 @app.get("/")
 def root():
     return {"message": "Welcome to Home Page!"}
@@ -100,7 +78,6 @@ def get_post(id: int):
 def delete_post(id: int):
 
     cursor.execute("""DELETE FROM POSTS OUTPUT Deleted.* WHERE POS_ID = ?""", id)
-    columns = [column[0] for column in cursor.description]
     row = cursor.fetchone()
     if not row:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")
@@ -110,10 +87,20 @@ def delete_post(id: int):
 
 @app.put("/posts/{id}")
 def update_post(id: int, post: Post):
-    index = find_index_post(id)
-    if index == None:
+    result=[]
+
+    if post.published == True:
+        post.published = 1
+    else:
+        post.published = 0
+
+    cursor.execute("""UPDATE POSTS SET POS_TITLE = ?,POS_DESCRIPTION = ?,POS_PUBLISHED = ? OUTPUT Inserted.* WHERE POS_ID = ?""", post.title,post.description,post.published,id)
+    columns = [column[0] for column in cursor.description]
+    row = cursor.fetchone()
+    if not row:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")
-    post_dict = post.dict()
-    post_dict['id'] = id
-    my_posts[index] = post_dict
-    return {"data": post_dict}
+    result=dict(zip(columns, row))
+    cnxn.commit()
+
+    return{"data":result}
+
