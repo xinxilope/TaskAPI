@@ -34,37 +34,35 @@ while True:
 def root():
     return {"message": "Welcome to Home Page!"}
 
-@app.get("/sqlalchemy")
-def test_posts(db: Session = Depends(get_db)):
-    return {"message": "sucess"}
-
 @app.get("/posts")
-def get_posts():
-    result=[]
+def get_posts(db: Session = Depends(get_db)):
+    # posts=[]
+    # cursor.execute("""SELECT * FROM T_POSTS""")
+    # columns = [column[0] for column in cursor.description]
+    # for row in cursor.fetchall():
+    #     posts.append(dict(zip(columns,row)))
+    posts = db.query(models.Post).all()
 
-    cursor.execute("""SELECT * FROM T_POSTS""")
-    columns = [column[0] for column in cursor.description]
-    for row in cursor.fetchall():
-        result.append(dict(zip(columns,row)))
-
-    return {"data": result}
+    return {"data": posts}
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
-def create_posts(post: Post):
-    result=[]
+def create_posts(post: Post, db: Session = Depends(get_db)):
+    # new_post=[]
+    # if post.published == True:
+    #     post.published = 1
+    # else:
+    #     post.published = 0
+    # cursor.execute("""INSERT INTO T_POSTS (POS_TITLE, POS_DESCRIPTION, POS_PUBLISHED) OUTPUT Inserted.* VALUES (?, ?, ?)""",post.title,post.description,post.published)
+    # columns = [column[0] for column in cursor.description]
+    # row = cursor.fetchone()
+    # new_post=dict(zip(columns, row))
+    # cnxn.commit()
+    new_post = models.Post(POS_TITLE=post.title, POS_DESCRIPTION=post.description, POS_PUBLISHED=post.published)
+    db.add(new_post)
+    db.commit()
+    db.refresh(new_post)
 
-    if post.published == True:
-        post.published = 1
-    else:
-        post.published = 0
-
-    cursor.execute("""INSERT INTO T_POSTS (POS_TITLE, POS_DESCRIPTION, POS_PUBLISHED) OUTPUT Inserted.* VALUES (?, ?, ?)""",post.title,post.description,post.published)
-    columns = [column[0] for column in cursor.description]
-    row = cursor.fetchone()
-    result=dict(zip(columns, row))
-    cnxn.commit()
-
-    return {"data": result}
+    return {"data": new_post}
 
 @app.get("/posts/{id}")
 def get_post(id: int):
