@@ -1,9 +1,6 @@
-from typing import Optional
 from fastapi import FastAPI, Response, status, HTTPException
 from pydantic import BaseModel
-import pyodbc
-import os
-import time
+import pyodbc, os, time
 
 
 app = FastAPI()
