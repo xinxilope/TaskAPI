@@ -11,9 +11,9 @@ app = FastAPI()
 
 
 class Post(BaseModel):
-    title: str
-    description: str
-    published: bool = True
+    POS_TITLE: str
+    POS_DESCRIPTION: str
+    POS_PUBLISHED: bool = True
 
 
 while True:
@@ -36,74 +36,40 @@ def root():
 
 @app.get("/posts")
 def get_posts(db: Session = Depends(get_db)):
-    # posts=[]
-    # cursor.execute("""SELECT * FROM T_POSTS""")
-    # columns = [column[0] for column in cursor.description]
-    # for row in cursor.fetchall():
-    #     posts.append(dict(zip(columns,row)))
     posts = db.query(models.Post).all()
-
     return {"data": posts}
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
 def create_posts(post: Post, db: Session = Depends(get_db)):
-    # new_post=[]
-    # if post.published == True:
-    #     post.published = 1
-    # else:
-    #     post.published = 0
-    # cursor.execute("""INSERT INTO T_POSTS (POS_TITLE, POS_DESCRIPTION, POS_PUBLISHED) OUTPUT Inserted.* VALUES (?, ?, ?)""",post.title,post.description,post.published)
-    # columns = [column[0] for column in cursor.description]
-    # row = cursor.fetchone()
-    # new_post=dict(zip(columns, row))
-    # cnxn.commit()
-    new_post = models.Post(POS_TITLE=post.title, POS_DESCRIPTION=post.description, POS_PUBLISHED=post.published)
+    new_post = models.Post(**post.dict())
     db.add(new_post)
     db.commit()
     db.refresh(new_post)
-
     return {"data": new_post}
 
 @app.get("/posts/{id}")
-def get_post(id: int):
-    result=[]
-
-    cursor.execute("""SELECT * FROM T_POSTS WHERE POS_ID = ?""", id)
-    columns = [column[0] for column in cursor.description]
-    row = cursor.fetchone()
-    if not row:
+def get_post(id: int, db: Session = Depends(get_db)):
+    post = db.query(models.Post).filter(models.Post.POS_ID == id).first()
+    if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")
-    result=dict(zip(columns, row))
-
-    return{"data":result}
+    return{"data":post}
 
 @app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id: int):
-
-    cursor.execute("""DELETE FROM T_POSTS OUTPUT Deleted.* WHERE POS_ID = ?""", id)
-    row = cursor.fetchone()
-    if not row:
+def delete_post(id: int, db: Session = Depends(get_db)):
+    post = db.query(models.Post).filter(models.Post.POS_ID == id)
+    if post.first() == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")
-    cnxn.commit()
-
+    post.delete(synchronize_session=False)
+    db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 @app.put("/posts/{id}")
-def update_post(id: int, post: Post):
-    result=[]
-
-    if post.published == True:
-        post.published = 1
-    else:
-        post.published = 0
-
-    cursor.execute("""UPDATE T_POSTS SET POS_TITLE = ?,POS_DESCRIPTION = ?,POS_PUBLISHED = ? OUTPUT Inserted.* WHERE POS_ID = ?""", post.title,post.description,post.published,id)
-    columns = [column[0] for column in cursor.description]
-    row = cursor.fetchone()
-    if not row:
+def update_post(id: int, updated_post: Post, db: Session = Depends(get_db)):
+    post_query = db.query(models.Post).filter(models.Post.POS_ID == id)
+    post = post_query.first()
+    if post == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")
-    result=dict(zip(columns, row))
-    cnxn.commit()
-
-    return{"data":result}
+    post_query.update(updated_post.dict(), synchronize_session=False)
+    db.commit()
+    return{"data":post_query.first()}
 
