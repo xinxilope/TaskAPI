@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from datetime import datetime
 
 
@@ -16,5 +16,19 @@ class PostCreate(PostBase):
 class Post(PostBase):
     POS_ID: int
     POS_CREATED_AT: datetime
+    class Config:
+        orm_mode = True
+
+
+class UserCreate(BaseModel):
+    USU_EMAIL: EmailStr
+    USU_PASSWORD: str
+
+
+class UserOut(BaseModel):
+    USU_ID: int
+    USU_EMAIL: EmailStr
+    USU_CREATED_AT: datetime
+    
     class Config:
         orm_mode = True

@@ -10,3 +10,10 @@ class Post(Base):
     POS_PUBLISHED = Column(Boolean, server_default='TRUE', nullable=False)
     POS_CREATED_AT = Column(DATETIME(timezone=True), nullable=False, server_default=text('GETDATE()'))
 
+class Users(Base):
+    __tablename__ = 'T_USUARIOS'
+
+    USU_ID = Column(Integer, primary_key=True, nullable=False)
+    USU_EMAIL = Column(String(100), nullable = False, unique=True)
+    USU_PASSWORD = Column(String, nullable=False)
+    USU_CREATED_AT = Column(DATETIME(timezone=True), nullable=False, server_default=text('GETDATE()'))
