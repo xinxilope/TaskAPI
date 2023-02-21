@@ -1,5 +1,5 @@
 from .database import Base
-from sqlalchemy import DATETIME, Column, Integer, String, Boolean, text
+from sqlalchemy import DATETIME, Column, ForeignKey, Integer, String, Boolean, text
 
 class Post(Base):
     __tablename__ = 'T_POSTS'
@@ -9,6 +9,7 @@ class Post(Base):
     POS_DESCRIPTION = Column(String)
     POS_PUBLISHED = Column(Boolean, server_default='TRUE', nullable=False)
     POS_CREATED_AT = Column(DATETIME(timezone=True), nullable=False, server_default=text('GETDATE()'))
+    POS_USU_ID = Column(Integer, ForeignKey('T_USUARIOS.USU_ID', ondelete="CASCADE"), nullable=False)
 
 class Users(Base):
     __tablename__ = 'T_USUARIOS'

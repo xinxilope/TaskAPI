@@ -16,6 +16,7 @@ class PostCreate(PostBase):
 class Post(PostBase):
     POS_ID: int
     POS_CREATED_AT: datetime
+    POS_USU_ID: int
     class Config:
         orm_mode = True
 
