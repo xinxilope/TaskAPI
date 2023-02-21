@@ -1,4 +1,5 @@
 from .database import Base
+from sqlalchemy.orm import relationship
 from sqlalchemy import DATETIME, Column, ForeignKey, Integer, String, Boolean, text
 
 class Post(Base):
@@ -10,6 +11,8 @@ class Post(Base):
     POS_PUBLISHED = Column(Boolean, server_default='TRUE', nullable=False)
     POS_CREATED_AT = Column(DATETIME(timezone=True), nullable=False, server_default=text('GETDATE()'))
     POS_USU_ID = Column(Integer, ForeignKey('T_USUARIOS.USU_ID', ondelete="CASCADE"), nullable=False)
+
+    Dono = relationship("Users")
 
 class Users(Base):
     __tablename__ = 'T_USUARIOS'

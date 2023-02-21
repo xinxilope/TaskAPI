@@ -13,10 +13,18 @@ class PostCreate(PostBase):
     pass
 
 
+class UserOut(BaseModel):
+    USU_ID: int
+    USU_EMAIL: EmailStr
+    USU_CREATED_AT: datetime
+    class Config:
+        orm_mode = True
+
 class Post(PostBase):
     POS_ID: int
     POS_CREATED_AT: datetime
     POS_USU_ID: int
+    Dono: UserOut
     class Config:
         orm_mode = True
 
@@ -24,15 +32,6 @@ class Post(PostBase):
 class UserCreate(BaseModel):
     USU_EMAIL: EmailStr
     USU_PASSWORD: str
-
-
-class UserOut(BaseModel):
-    USU_ID: int
-    USU_EMAIL: EmailStr
-    USU_CREATED_AT: datetime
-    
-    class Config:
-        orm_mode = True
 
 
 class Token(BaseModel):
