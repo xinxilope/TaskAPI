@@ -4,9 +4,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import pyodbc, os, time
+from .config import settings
 
-server = os.environ['taskAPIdbHOST'] 
-database = os.environ['taskAPIdbDATABASE']
+server = settings.TASKAPI_HOST
+database = settings.TASKAPI_DATABASE
 parametros = (
     'DRIVER={SQL Server Native Client 11.0};'
     'SERVER='+server+';'
