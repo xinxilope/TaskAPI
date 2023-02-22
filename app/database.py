@@ -3,7 +3,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-
+import pyodbc, os, time
 
 server = os.environ['taskAPIdbHOST'] 
 database = os.environ['taskAPIdbDATABASE']
@@ -24,3 +24,18 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+
+
+# while True:
+#     try:
+#         server = os.environ['taskAPIdbHOST'] 
+#         database = os.environ['taskAPIdbDATABASE']
+#         cnxn = pyodbc.connect('DRIVER={SQL Server Native Client 11.0};SERVER='+server+';DATABASE='+database+';Trusted_Connection=yes')
+#         cursor = cnxn.cursor()
+#         print("Database Connected!")
+#         break
+#     except Exception as error:
+#         print("Connecting to database failed\nError: ", error)
+#         time.sleep(5)

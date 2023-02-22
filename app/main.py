@@ -1,27 +1,13 @@
-from fastapi import FastAPI, Response, status, HTTPException, Depends
-import pyodbc, os, time
-from . import models, schemas, utils
-from .database import engine, get_db
-from sqlalchemy.orm import Session
+from fastapi import FastAPI
+from . import models
+from .database import engine
 from .routers import post, user, auth
 
 
+
 models.Base.metadata.create_all(bind=engine)
+
 app = FastAPI()
-
-
-
-while True:
-    try:
-        server = os.environ['taskAPIdbHOST'] 
-        database = os.environ['taskAPIdbDATABASE']
-        cnxn = pyodbc.connect('DRIVER={SQL Server Native Client 11.0};SERVER='+server+';DATABASE='+database+';Trusted_Connection=yes')
-        cursor = cnxn.cursor()
-        print("Database Connected!")
-        break
-    except Exception as error:
-        print("Connecting to database failed\nError: ", error)
-        time.sleep(5)
 
 
 
