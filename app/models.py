@@ -21,3 +21,10 @@ class Users(Base):
     USU_EMAIL = Column(String(100), nullable = False, unique=True)
     USU_PASSWORD = Column(String, nullable=False)
     USU_CREATED_AT = Column(DATETIME(timezone=True), nullable=False, server_default=text('GETDATE()'))
+
+
+class Likes(Base):
+    __tablename__ = 'T_LIKES'
+
+    LIK_POS_ID = Column(Integer, ForeignKey('T_POSTS.POS_ID'), primary_key=True, nullable=False)
+    LIK_USU_ID = Column(Integer, ForeignKey('T_USUARIOS.USU_ID'), primary_key=True, nullable=False)
