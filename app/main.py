@@ -1,8 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from . import models
 from .database import engine
 from .routers import post, user, auth, likes
 from .config import settings
+from sqlalchemy.orm import Session
+from .database import get_db
 
 
 
@@ -21,3 +23,11 @@ app.include_router(likes.router)
 @app.get("/")
 def root():
     return {"message": "Welcome to Home Page!"}
+
+
+@app.post("/query_generica")
+def query_generica(query: str, db: Session = Depends(get_db)):
+
+    result = db.execute(query).all()
+
+    return result
