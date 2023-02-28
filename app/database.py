@@ -6,16 +6,17 @@ from sqlalchemy.orm import sessionmaker
 import pyodbc, os, time
 from .config import settings
 
-server = settings.TASKAPI_HOST
-database = settings.TASKAPI_DATABASE
-parametros = (
-    'DRIVER={SQL Server Native Client 11.0};'
-    'SERVER='+server+';'
-    'DATABASE='+database+';'
-    'Trusted_Connection=yes'
-    )
-url_db = quote_plus(parametros)
-engine = create_engine('mssql+pyodbc:///?odbc_connect=%s' % url_db)
+# server = settings.TASKAPI_HOST
+# database = settings.TASKAPI_DATABASE
+# parametros = (
+#     'DRIVER={SQL Server Native Client 11.0};'
+#     'SERVER='+server+';'
+#     'DATABASE='+database+';'
+#     'Trusted_Connection=yes'
+#     )
+# url_db = quote_plus(parametros)
+
+engine = create_engine("mssql+pyodbc:///?odbc_connect=DRIVER={SQL+Server+Native+Client+11.0};SERVER=localhost;DATABASE=taskAPI;Trusted_Connection=yes")
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 

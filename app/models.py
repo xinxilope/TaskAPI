@@ -10,7 +10,7 @@ class Post(Base):
     POS_DESCRIPTION = Column(String)
     POS_PUBLISHED = Column(Boolean, server_default='TRUE', nullable=False)
     POS_CREATED_AT = Column(DATETIME(timezone=True), nullable=False, server_default=text('GETDATE()'))
-    POS_USU_ID = Column(Integer, ForeignKey('T_USUARIOS.USU_ID', ondelete="CASCADE"), nullable=False)
+    POS_USU_ID = Column(Integer, ForeignKey('T_USUARIOS.USU_ID'), nullable=False)
 
     Dono = relationship("Users")
 
@@ -21,6 +21,8 @@ class Users(Base):
     USU_EMAIL = Column(String(100), nullable = False, unique=True)
     USU_PASSWORD = Column(String, nullable=False)
     USU_CREATED_AT = Column(DATETIME(timezone=True), nullable=False, server_default=text('GETDATE()'))
+    USU_PHONE = Column(String)
+
 
 
 class Likes(Base):
