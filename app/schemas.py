@@ -29,6 +29,11 @@ class Post(PostBase):
         orm_mode = True
 
 
+# class PostOut(BaseModel):
+#     POS_ID: int
+#     likes: int
+
+
 class UserCreate(BaseModel):
     USU_EMAIL: EmailStr
     USU_PASSWORD: str
