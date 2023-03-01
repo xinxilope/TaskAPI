@@ -2,17 +2,14 @@ from fastapi import FastAPI, Depends
 from . import models
 from .database import engine
 from .routers import post, user, auth, likes
-from .config import settings
 from sqlalchemy.orm import Session
 from .database import get_db
 
 
-
-models.Base.metadata.create_all(bind=engine)
+# comando desnecessario pois o Almebic cuida da database
+# models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-
-
 
 
 app.include_router(post.router)
