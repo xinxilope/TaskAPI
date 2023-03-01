@@ -13,7 +13,7 @@ engine = create_engine("mssql+pyodbc:///?odbc_connect=DRIVER={SQL+Server+Native+
 TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
-@pytest.fixture
+@pytest.fixture()
 def session():
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
@@ -24,7 +24,7 @@ def session():
         db.close()
 
 
-@pytest.fixture
+@pytest.fixture()
 def client(session):
     def get_test_db():
         try:
@@ -33,3 +33,14 @@ def client(session):
             session.close()
     app.dependency_overrides[get_db] = get_test_db
     yield TestClient(app)
+
+
+@pytest.fixture
+def test_user(client):
+    user_data={"USU_EMAIL": "teste@mail.com", "USU_PASSWORD": "123456"}
+    res=client.post("/users/", json=user_data)
+
+    assert res.status_code == 201
+    new_user = res.json()
+    new_user['USU_PASSWORD'] = user_data['USU_PASSWORD']
+    return new_user
