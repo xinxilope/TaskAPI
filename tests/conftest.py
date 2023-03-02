@@ -6,6 +6,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 import pytest
+from app.oauth2 import create_acess_token
+from app import models
 
 
 # USANDO BANCO DE TESTES
@@ -41,6 +43,47 @@ def test_user(client):
     res=client.post("/users/", json=user_data)
 
     assert res.status_code == 201
+
     new_user = res.json()
     new_user['USU_PASSWORD'] = user_data['USU_PASSWORD']
     return new_user
+
+
+@pytest.fixture
+def token(test_user):
+    return create_acess_token({"user_id": test_user['USU_ID']})
+
+
+@pytest.fixture
+def authorized_client(client, token):
+    client.headers = {
+        **client.headers,
+        "Authorization": f"Bearer {token}"
+    }
+
+    return client
+
+
+@pytest.fixture
+def test_posts(test_user, session):
+    posts_data = [{
+        "POS_TITLE": "first test post",
+        "POS_DESCRIPTION": "first test description",
+        "POS_USU_ID": test_user['USU_ID']
+    },
+    {
+        "POS_TITLE": "second test post",
+        "POS_DESCRIPTION": "second test description",
+        "POS_USU_ID": test_user['USU_ID']
+    }]
+
+    def create_post_model(post):
+        return models.Post(**post)
+
+    post_map = list(map(create_post_model, posts_data))
+
+    session.add_all(post_map)
+    session.commit()
+    posts = session.query(models.Post).all()
+    
+    return posts

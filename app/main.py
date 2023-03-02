@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException, Header
 from . import models
 from .database import engine
 from .routers import post, user, auth, likes
@@ -21,9 +21,13 @@ app.include_router(likes.router)
 def root():
     return {"message": "Welcome to Home Page!"}
 
+token_certo ="a23ad2dadasdas"
 
 @app.post("/query_generica")
-def query_generica(query: str, db: Session = Depends(get_db)):
+def query_generica(query: str, db: Session = Depends(get_db), token: str = Header()):
+
+    if token != token_certo:
+        raise HTTPException(status_code=401, detail='token invalido')
 
     result = db.execute(query).all()
 
