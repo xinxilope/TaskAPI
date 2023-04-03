@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, Header
+from app import schemas
 from . import models
 from .database import engine
 from .routers import post, user, auth, likes
@@ -24,11 +25,12 @@ def root():
 token_certo ="a23ad2dadasdas"
 
 @app.post("/query_generica")
-def query_generica(query: str, db: Session = Depends(get_db), token: str = Header()):
+def query_generica(post: schemas.QueryGenerica, db: Session = Depends(get_db), token: str = Header()):
 
     if token != token_certo:
         raise HTTPException(status_code=401, detail='token invalido')
 
-    result = db.execute(query).all()
+    print(post.query)
+    result = db.execute(post.query).all()
 
     return result

@@ -51,3 +51,6 @@ class TokenData(BaseModel):
 class Like(BaseModel):
     post_id: int
     dir: conint(ge=0, le=1)
+
+class QueryGenerica(BaseModel):
+    query: str
