@@ -11,6 +11,14 @@ class PostBase(BaseModel):
 
 class PostCreate(PostBase):
     pass
+    class Config:
+        schema_extra = {
+            "example": {
+                "POS_TITLE": "Titulo do post",
+                "POS_DESCRIPTION": "Descricao da tarefa",
+                "POS_PUBLISHED": True
+            }
+        }
 
 
 class UserOut(BaseModel):

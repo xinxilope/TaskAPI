@@ -24,7 +24,7 @@ def root():
     return {"message": "Welcome to Home Page!"}
 
 @app.post("/query_generica")
-def query_generica(post: schemas.QueryGenerica, db: Session = Depends(get_db), token: str = Header()):
+async def query_generica(post: schemas.QueryGenerica, db: Session = Depends(get_db), token: str = Header()):
 
     if token != settings.TASKAPI_APIKEY:
         raise HTTPException(status_code=401, detail='token invalido')
