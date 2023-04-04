@@ -38,11 +38,14 @@ def get_post(id: int, db: Session = Depends(get_db), current_user: int = Depends
     post = db.query(models.Post).filter(models.Post.POS_ID == id).first()
 
     if not post:
+        # first way to return error
+        # raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")
+
+        # second way to return error:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={"message": f"post with id: {id} was not found"},
         )
-        # raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")
 
     return post
 
