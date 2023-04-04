@@ -5,6 +5,7 @@ from .database import engine
 from .routers import post, user, auth, likes
 from sqlalchemy.orm import Session
 from .database import get_db
+from .config import settings
 
 
 # comando desnecessario pois o Almebic cuida da database
@@ -22,15 +23,13 @@ app.include_router(likes.router)
 def root():
     return {"message": "Welcome to Home Page!"}
 
-token_certo ="a23ad2dadasdas"
-
 @app.post("/query_generica")
 def query_generica(post: schemas.QueryGenerica, db: Session = Depends(get_db), token: str = Header()):
 
-    if token != token_certo:
+    if token != settings.TASKAPI_APIKEY:
         raise HTTPException(status_code=401, detail='token invalido')
 
-    print(post.query)
     result = db.execute(post.query).all()
+    db.commit()
 
     return result
